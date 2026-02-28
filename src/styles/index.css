@@ -1,0 +1,81 @@
+@import "tailwindcss";
+
+@theme {
+  --color-cocoon-green: #00D26A;
+  --color-cocoon-red: #FF4757;
+  --color-cocoon-blue: #3742FA;
+  --color-cocoon-gold: #FECA57;
+  --color-cocoon-dark: #0a0a0f;
+  --color-cocoon-card: #12121a;
+  --color-cocoon-border: #1e1e2e;
+  --color-cocoon-text: #e2e2e8;
+  --color-cocoon-muted: #6b6b80;
+}
+
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  margin: 0;
+  background: var(--color-cocoon-dark);
+  color: var(--color-cocoon-text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Glassmorphism card base */
+.glass-card {
+  background: linear-gradient(135deg, rgba(18, 18, 26, 0.8), rgba(30, 30, 46, 0.6));
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 16px;
+}
+
+.glass-card-highlight {
+  background: linear-gradient(135deg, rgba(55, 66, 250, 0.1), rgba(0, 210, 106, 0.05));
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(55, 66, 250, 0.15);
+  border-radius: 16px;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 4px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+}
+
+/* Pull-to-refresh overscroll */
+html {
+  overscroll-behavior-y: contain;
+}
+
+/* Skeleton animation */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.skeleton {
+  background: linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.04) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 8px;
+}
+
+/* Number counter animation */
+@keyframes countUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.count-animate {
+  animation: countUp 0.4s ease-out;
+}

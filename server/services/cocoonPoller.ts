@@ -3,6 +3,9 @@
  * and stores them in the database for the dashboard to consume.
  */
 
+import { getAllNodeIds, insertMetrics } from '../db/queries/nodes.js'
+import { cache } from '../cache/redis.js'
+
 const POLL_INTERVAL_MS = 30_000 // 30 seconds
 const COCOON_API = process.env.COCOON_API_URL ?? 'https://api.cocoon.network'
 
@@ -44,15 +47,15 @@ export class CocoonPoller {
 
   private async poll() {
     try {
-      // TODO: In production, fetch registered node IDs from database
-      // then query Cocoon API for each node's status
-      const nodeIds = await this.getRegisteredNodeIds()
+      const nodeIds = await getAllNodeIds()
+      if (nodeIds.length === 0) return
 
       for (const nodeId of nodeIds) {
         try {
           const metrics = await this.fetchNodeMetrics(nodeId)
           if (metrics) {
             await this.storeMetrics(metrics)
+            await this.cacheLatestMetrics(metrics)
             await this.checkAlerts(metrics)
           }
         } catch (err) {
@@ -62,11 +65,6 @@ export class CocoonPoller {
     } catch (err) {
       console.error('[CocoonPoller] Poll cycle failed:', err)
     }
-  }
-
-  private async getRegisteredNodeIds(): Promise<string[]> {
-    // TODO: Query database for all registered node IDs
-    return []
   }
 
   private async fetchNodeMetrics(nodeId: string): Promise<NodeMetricsResponse | null> {
@@ -92,25 +90,33 @@ export class CocoonPoller {
   }
 
   private async storeMetrics(metrics: NodeMetricsResponse): Promise<void> {
-    // TODO: Insert into node_metrics table
-    // Also update the latest snapshot in Redis for fast reads
-    console.log(`[CocoonPoller] Stored metrics for ${metrics.node_id}: GPU ${metrics.gpu_utilization}%, Temp ${metrics.temperature_c}°C`)
+    await insertMetrics(
+      metrics.node_id,
+      metrics.status,
+      metrics.gpu_utilization,
+      metrics.vram_used_mb,
+      metrics.temperature_c,
+      metrics.uptime_seconds,
+      metrics.tee_status,
+    )
+  }
+
+  private async cacheLatestMetrics(metrics: NodeMetricsResponse): Promise<void> {
+    // Cache latest snapshot in Redis for fast reads (30s TTL matches poll interval)
+    await cache.set(`node:metrics:${metrics.node_id}`, JSON.stringify(metrics), 60)
   }
 
   private async checkAlerts(metrics: NodeMetricsResponse): Promise<void> {
-    // TODO: Check against alert_preferences and send Telegram alerts if needed
-    // - Node went offline
-    // - Temperature exceeded threshold
-    // - TEE attestation failed
-
     if (metrics.status === 'offline') {
       console.log(`[CocoonPoller] ALERT: Node ${metrics.node_id} is offline`)
-      // await alertService.sendNodeOfflineAlert(metrics.node_id)
     }
 
     if (metrics.temperature_c > 85) {
       console.log(`[CocoonPoller] ALERT: Node ${metrics.node_id} temp ${metrics.temperature_c}°C exceeds threshold`)
-      // await alertService.sendTempAlert(metrics.node_id, metrics.temperature_c)
+    }
+
+    if (metrics.tee_status === 'failed') {
+      console.log(`[CocoonPoller] ALERT: Node ${metrics.node_id} TEE attestation failed`)
     }
   }
 }

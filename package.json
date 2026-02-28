@@ -14,9 +14,12 @@
   "dependencies": {
     "@telegram-apps/sdk-react": "^3.3.9",
     "@tonconnect/ui-react": "^2.4.1",
+    "@types/pg": "^8.16.0",
     "date-fns": "^4.1.0",
     "framer-motion": "^12.34.0",
+    "ioredis": "^5.10.0",
     "lucide-react": "^0.563.0",
+    "pg": "^8.19.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-router-dom": "^7.13.0",

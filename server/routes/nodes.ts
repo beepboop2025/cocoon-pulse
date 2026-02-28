@@ -1,71 +1,118 @@
 import { Router, type Request, type Response } from 'express'
+import { getNodesByWallet, registerNode, deleteNode, updateNodeName } from '../db/queries/nodes.js'
+import { findUserByWallet, ensureUser } from '../db/client.js'
 
 export const nodesRouter = Router()
 
 // GET /api/nodes?wallet=...
-nodesRouter.get('/', (req: Request, res: Response) => {
+nodesRouter.get('/', async (req: Request, res: Response) => {
   const wallet = req.query.wallet as string
   if (!wallet) {
     res.status(400).json({ error: 'wallet query parameter required' })
     return
   }
 
-  // TODO: Query database for nodes linked to this wallet
-  // For now, return mock data
-  res.json({
-    nodes: [
-      {
-        nodeId: 'cocoon-node-001',
-        name: 'GPU Node 1',
-        walletAddress: wallet,
-        status: 'online',
-        gpuUtilization: 78,
-        vramUsed: 62000,
-        vramTotal: 81920,
-        temperature: 72,
-        uptimeSeconds: 2160000,
-        teeStatus: 'verified',
-        lastHeartbeat: new Date().toISOString(),
-        gpuModel: 'NVIDIA A100 80GB',
-      },
-    ],
-  })
+  try {
+    const rows = await getNodesByWallet(wallet)
+    const nodes = rows.map((r) => ({
+      nodeId: r.node_id,
+      name: r.name,
+      walletAddress: r.wallet_address,
+      status: r.status,
+      gpuUtilization: Number(r.gpu_utilization),
+      vramUsed: Number(r.vram_used_mb),
+      vramTotal: Number(r.vram_total_mb),
+      temperature: Number(r.temperature),
+      uptimeSeconds: Number(r.uptime_seconds),
+      teeStatus: r.tee_status,
+      lastHeartbeat: r.last_heartbeat,
+      gpuModel: r.gpu_model,
+    }))
+    res.json({ nodes })
+  } catch (err) {
+    console.error('[nodes] GET / error:', err)
+    res.status(500).json({ error: 'Failed to fetch nodes' })
+  }
 })
 
 // POST /api/nodes/register
-nodesRouter.post('/register', (req: Request, res: Response) => {
-  const { walletAddress, nodeId } = req.body as { walletAddress?: string; nodeId?: string }
+nodesRouter.post('/register', async (req: Request, res: Response) => {
+  const { walletAddress, nodeId, name, gpuModel, vramTotalMb } = req.body as {
+    walletAddress?: string
+    nodeId?: string
+    name?: string
+    gpuModel?: string
+    vramTotalMb?: number
+  }
 
   if (!walletAddress || !nodeId) {
     res.status(400).json({ error: 'walletAddress and nodeId are required' })
     return
   }
 
-  // TODO: Insert into database, verify node exists on Cocoon network
-  res.json({
-    success: true,
-    node: {
-      nodeId,
-      walletAddress,
-      name: `Node ${nodeId.slice(-3)}`,
-      registeredAt: new Date().toISOString(),
-    },
-  })
+  try {
+    // Ensure user exists via Telegram auth data attached by middleware
+    const telegramUser = (req as Record<string, unknown>).telegramUser as { id: number; username?: string; first_name?: string } | undefined
+    const telegramId = telegramUser?.id ?? 0
+    const user = await ensureUser(telegramId, walletAddress, telegramUser?.username, telegramUser?.first_name)
+
+    const node = await registerNode(user.id, nodeId, walletAddress, name, gpuModel, vramTotalMb)
+    res.json({
+      success: true,
+      node: {
+        nodeId: node.node_id,
+        walletAddress: node.wallet_address,
+        name: node.name,
+        registeredAt: node.created_at,
+      },
+    })
+  } catch (err) {
+    console.error('[nodes] POST /register error:', err)
+    res.status(500).json({ error: 'Failed to register node' })
+  }
 })
 
 // DELETE /api/nodes/:nodeId
-nodesRouter.delete('/:nodeId', (req: Request, res: Response) => {
+nodesRouter.delete('/:nodeId', async (req: Request, res: Response) => {
   const { nodeId } = req.params
+  const wallet = req.query.wallet as string
+  if (!wallet) {
+    res.status(400).json({ error: 'wallet query parameter required' })
+    return
+  }
 
-  // TODO: Remove from database
-  res.json({ success: true, nodeId })
+  try {
+    const deleted = await deleteNode(nodeId, wallet)
+    if (!deleted) {
+      res.status(404).json({ error: 'Node not found or not owned by this wallet' })
+      return
+    }
+    res.json({ success: true, nodeId })
+  } catch (err) {
+    console.error('[nodes] DELETE error:', err)
+    res.status(500).json({ error: 'Failed to delete node' })
+  }
 })
 
 // PUT /api/nodes/:nodeId
-nodesRouter.put('/:nodeId', (req: Request, res: Response) => {
+nodesRouter.put('/:nodeId', async (req: Request, res: Response) => {
   const { nodeId } = req.params
-  const { name } = req.body as { name?: string }
+  const { name, walletAddress } = req.body as { name?: string; walletAddress?: string }
 
-  // TODO: Update in database
-  res.json({ success: true, nodeId, name })
+  if (!name || !walletAddress) {
+    res.status(400).json({ error: 'name and walletAddress are required' })
+    return
+  }
+
+  try {
+    const updated = await updateNodeName(nodeId, name, walletAddress)
+    if (!updated) {
+      res.status(404).json({ error: 'Node not found or not owned by this wallet' })
+      return
+    }
+    res.json({ success: true, nodeId, name })
+  } catch (err) {
+    console.error('[nodes] PUT error:', err)
+    res.status(500).json({ error: 'Failed to update node' })
+  }
 })

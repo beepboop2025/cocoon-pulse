@@ -3,7 +3,7 @@ import pg from 'pg'
 const { Pool } = pg
 
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL ?? 'postgresql://cocoon:cocoon@localhost:5432/cocoon_pulse',
+  connectionString: process.env.DATABASE_URL ?? 'postgresql://localhost:5432/cocoon_pulse',
   max: 20,
   idleTimeoutMillis: 30_000,
   connectionTimeoutMillis: 5_000,

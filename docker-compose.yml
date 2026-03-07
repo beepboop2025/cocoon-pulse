@@ -4,16 +4,16 @@ services:
   postgres:
     image: postgres:17-alpine
     environment:
-      POSTGRES_USER: cocoon
-      POSTGRES_PASSWORD: cocoon
-      POSTGRES_DB: cocoon_pulse
+      POSTGRES_USER: ${POSTGRES_USER:-cocoon}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set}
+      POSTGRES_DB: ${POSTGRES_DB:-cocoon_pulse}
     ports:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
       - ./server/db/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U cocoon -d cocoon_pulse"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-cocoon} -d ${POSTGRES_DB:-cocoon_pulse}"]
       interval: 5s
       timeout: 3s
       retries: 5
@@ -39,7 +39,7 @@ services:
       - "3001:3001"
     environment:
       PORT: "3001"
-      DATABASE_URL: postgresql://cocoon:cocoon@postgres:5432/cocoon_pulse
+      DATABASE_URL: postgresql://${POSTGRES_USER:-cocoon}:${POSTGRES_PASSWORD:?required}@postgres:5432/${POSTGRES_DB:-cocoon_pulse}
       REDIS_URL: redis://redis:6379
       COCOON_API_URL: ${COCOON_API_URL:-https://api.cocoon.network}
       COCOON_API_KEY: ${COCOON_API_KEY:-}
@@ -63,7 +63,7 @@ services:
     ports:
       - "8080:8080"
     environment:
-      DATABASE_URL: postgresql://cocoon:cocoon@postgres:5432/cocoon_pulse
+      DATABASE_URL: postgresql://${POSTGRES_USER:-cocoon}:${POSTGRES_PASSWORD:?required}@postgres:5432/${POSTGRES_DB:-cocoon_pulse}
     depends_on:
       postgres:
         condition: service_healthy

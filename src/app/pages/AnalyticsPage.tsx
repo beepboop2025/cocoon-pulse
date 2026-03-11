@@ -6,20 +6,20 @@ import { useNodeStore } from '@/store/nodeStore'
 import { CardSkeleton } from '@/components/ui/Skeleton'
 
 export function AnalyticsPage() {
-  const { isLoading } = useNodeStore()
+  const { isLoading, isRefreshing } = useNodeStore()
 
   if (isLoading) {
     return (
       <div className="space-y-4 pb-4">
-        <CardSkeleton />
-        <CardSkeleton />
-        <CardSkeleton />
+        <CardSkeleton delay={0} />
+        <CardSkeleton delay={0.1} />
+        <CardSkeleton delay={0.2} />
       </div>
     )
   }
 
   return (
-    <div className="space-y-4 pb-4">
+    <div className={`space-y-4 pb-4 ${isRefreshing ? 'refreshing-overlay is-refreshing' : ''}`}>
       <TaskHistory />
       <TaskHeatmap />
       <NetworkStats />

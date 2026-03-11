@@ -48,7 +48,7 @@ def compute_retention_cohorts(weeks: int = 4) -> list[dict]:
                     u.id AS user_id,
                     date_trunc('week', u.created_at)::date AS cohort_week
                 FROM users u
-                WHERE u.created_at >= CURRENT_DATE - interval '%s weeks'
+                WHERE u.created_at >= CURRENT_DATE - interval '1 week' * %s
             ),
             activity AS (
                 SELECT DISTINCT n.user_id, date_trunc('week', e.completed_at)::date AS activity_week
@@ -70,7 +70,7 @@ def compute_retention_cohorts(weeks: int = 4) -> list[dict]:
             LEFT JOIN activity a ON a.user_id = c.user_id
             GROUP BY c.cohort_week
             ORDER BY c.cohort_week
-        """ % weeks)
+        """, (weeks,))
         return [dict(row) for row in cur.fetchall()]
 
 

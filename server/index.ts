@@ -12,8 +12,18 @@ import { closePool } from './db/client.js'
 const app = express()
 const PORT = Number(process.env.PORT) || 3001
 
+const allowedOrigins = process.env.ALLOWED_ORIGIN
+  ? process.env.ALLOWED_ORIGIN.split(',').map((o) => o.trim())
+  : ['https://web.telegram.org', 'https://t.me']
+
 app.use(cors({
-  origin: process.env.ALLOWED_ORIGIN || 'https://t.me',
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true)
+    } else {
+      callback(new Error('Not allowed by CORS'))
+    }
+  },
   credentials: true,
 }))
 app.use(express.json({ limit: '10kb' }))

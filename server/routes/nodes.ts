@@ -1,4 +1,5 @@
 import { Router, type Request, type Response } from 'express'
+import crypto from 'node:crypto'
 import { getNodesByWallet, registerNode, deleteNode, updateNodeName } from '../db/queries/nodes.js'
 import { findUserByWallet, ensureUser } from '../db/client.js'
 
@@ -53,7 +54,7 @@ nodesRouter.post('/register', async (req: Request, res: Response) => {
   try {
     // Ensure user exists via Telegram auth data attached by middleware
     const telegramUser = (req as Record<string, unknown>).telegramUser as { id: number; username?: string; first_name?: string } | undefined
-    const telegramId = telegramUser?.id ?? 0
+    const telegramId = telegramUser?.id ?? parseInt(crypto.createHash('sha256').update(walletAddress).digest('hex').slice(0, 12), 16)
     const user = await ensureUser(telegramId, walletAddress, telegramUser?.username, telegramUser?.first_name)
 
     const node = await registerNode(user.id, nodeId, walletAddress, name, gpuModel, vramTotalMb)

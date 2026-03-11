@@ -50,17 +50,19 @@ export class CocoonPoller {
       const nodeIds = await getAllNodeIds()
       if (nodeIds.length === 0) return
 
-      for (const nodeId of nodeIds) {
-        try {
-          const metrics = await this.fetchNodeMetrics(nodeId)
-          if (metrics) {
-            await this.storeMetrics(metrics)
-            await this.cacheLatestMetrics(metrics)
-            await this.checkAlerts(metrics)
-          }
-        } catch (err) {
-          console.error(`[CocoonPoller] Failed to poll node ${nodeId}:`, err)
-        }
+      const BATCH_SIZE = 10
+      for (let i = 0; i < nodeIds.length; i += BATCH_SIZE) {
+        const batch = nodeIds.slice(i, i + BATCH_SIZE)
+        await Promise.allSettled(
+          batch.map(async (nodeId) => {
+            const metrics = await this.fetchNodeMetrics(nodeId)
+            if (metrics) {
+              await this.storeMetrics(metrics)
+              await this.cacheLatestMetrics(metrics)
+              await this.checkAlerts(metrics)
+            }
+          })
+        )
       }
     } catch (err) {
       console.error('[CocoonPoller] Poll cycle failed:', err)

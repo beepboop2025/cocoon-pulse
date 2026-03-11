@@ -1,3 +1,5 @@
+import { motion } from 'framer-motion'
+
 interface SkeletonProps {
   className?: string
   width?: string | number
@@ -13,9 +15,14 @@ export function Skeleton({ className = '', width, height }: SkeletonProps) {
   )
 }
 
-export function CardSkeleton() {
+export function CardSkeleton({ delay = 0 }: { delay?: number }) {
   return (
-    <div className="glass-card p-4 space-y-3">
+    <motion.div
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+      className="glass-card p-4 space-y-3"
+    >
       <div className="flex items-center justify-between">
         <Skeleton width={120} height={20} />
         <Skeleton width={60} height={24} className="rounded-full" />
@@ -27,6 +34,6 @@ export function CardSkeleton() {
         <Skeleton width={80} height={36} />
       </div>
       <Skeleton width="60%" height={12} />
-    </div>
+    </motion.div>
   )
 }

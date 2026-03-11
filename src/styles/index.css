@@ -5,77 +5,380 @@
   --color-cocoon-red: #FF4757;
   --color-cocoon-blue: #3742FA;
   --color-cocoon-gold: #FECA57;
-  --color-cocoon-dark: #0a0a0f;
-  --color-cocoon-card: #12121a;
-  --color-cocoon-border: #1e1e2e;
-  --color-cocoon-text: #e2e2e8;
-  --color-cocoon-muted: #6b6b80;
+  --color-cocoon-dark: #080b1a;
+  --color-cocoon-card: #0e1225;
+  --color-cocoon-border: #1a1f3a;
+  --color-cocoon-text: #e4e4ec;
+  --color-cocoon-muted: #6e7191;
+  --color-cocoon-surface: #111633;
 }
 
 * {
   -webkit-tap-highlight-color: transparent;
+  box-sizing: border-box;
+}
+
+html {
+  overscroll-behavior-y: contain;
 }
 
 body {
   margin: 0;
   background: var(--color-cocoon-dark);
   color: var(--color-cocoon-text);
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
-/* Glassmorphism card base */
+/* ============================
+   Deep Navy Gradient Background
+   ============================ */
+#root {
+  min-height: 100vh;
+  background:
+    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(55, 66, 250, 0.12), transparent),
+    radial-gradient(ellipse 60% 40% at 80% 100%, rgba(0, 210, 106, 0.06), transparent),
+    linear-gradient(180deg, #080b1a 0%, #0a0f24 50%, #080b1a 100%);
+}
+
+/* ============================
+   Glassmorphism Cards
+   ============================ */
 .glass-card {
-  background: linear-gradient(135deg, rgba(18, 18, 26, 0.8), rgba(30, 30, 46, 0.6));
-  backdrop-filter: blur(12px);
+  background: linear-gradient(135deg, rgba(14, 18, 37, 0.85), rgba(17, 22, 51, 0.65));
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 16px;
+  border-radius: 20px;
+  box-shadow:
+    0 4px 24px rgba(0, 0, 0, 0.25),
+    0 1px 0 rgba(255, 255, 255, 0.03) inset;
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+              box-shadow 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.glass-card:hover {
+  transform: translateY(-1px);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.35),
+    0 1px 0 rgba(255, 255, 255, 0.04) inset;
 }
 
 .glass-card-highlight {
-  background: linear-gradient(135deg, rgba(55, 66, 250, 0.1), rgba(0, 210, 106, 0.05));
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(55, 66, 250, 0.15);
-  border-radius: 16px;
+  background: linear-gradient(135deg, rgba(55, 66, 250, 0.08), rgba(0, 210, 106, 0.04), rgba(14, 18, 37, 0.8));
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(55, 66, 250, 0.12);
+  border-radius: 20px;
+  box-shadow:
+    0 4px 24px rgba(55, 66, 250, 0.08),
+    0 1px 0 rgba(255, 255, 255, 0.04) inset;
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+              box-shadow 0.3s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-/* Scrollbar */
+.glass-card-highlight:hover {
+  transform: translateY(-1px);
+  box-shadow:
+    0 8px 32px rgba(55, 66, 250, 0.12),
+    0 1px 0 rgba(255, 255, 255, 0.05) inset;
+}
+
+/* ============================
+   Scrollbar
+   ============================ */
 ::-webkit-scrollbar {
-  width: 4px;
+  width: 3px;
 }
 ::-webkit-scrollbar-track {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 3px;
 }
 
-/* Pull-to-refresh overscroll */
-html {
-  overscroll-behavior-y: contain;
-}
-
-/* Skeleton animation */
+/* ============================
+   Skeleton / Shimmer
+   ============================ */
 @keyframes shimmer {
   0% { background-position: -200% 0; }
   100% { background-position: 200% 0; }
 }
 
 .skeleton {
-  background: linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.04) 75%);
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.03) 25%,
+    rgba(255, 255, 255, 0.07) 50%,
+    rgba(255, 255, 255, 0.03) 75%
+  );
   background-size: 200% 100%;
-  animation: shimmer 1.5s infinite;
-  border-radius: 8px;
+  animation: shimmer 1.8s ease-in-out infinite;
+  border-radius: 10px;
 }
 
-/* Number counter animation */
+/* ============================
+   Staggered Entrance Animations
+   ============================ */
+@keyframes fadeSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-slide-up {
+  animation: fadeSlideUp 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Stagger delays for cards */
+.stagger-1 { animation-delay: 0.05s; }
+.stagger-2 { animation-delay: 0.1s; }
+.stagger-3 { animation-delay: 0.15s; }
+.stagger-4 { animation-delay: 0.2s; }
+.stagger-5 { animation-delay: 0.25s; }
+.stagger-6 { animation-delay: 0.3s; }
+
+/* ============================
+   Number Counter
+   ============================ */
 @keyframes countUp {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; transform: translateY(8px) scale(0.95); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
 .count-animate {
-  animation: countUp 0.4s ease-out;
+  animation: countUp 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ============================
+   Status Pulse Animations
+   ============================ */
+@keyframes pulseGreen {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(0, 210, 106, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 0 5px rgba(0, 210, 106, 0);
+  }
+}
+
+@keyframes pulseRed {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(255, 71, 87, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 0 5px rgba(255, 71, 87, 0);
+  }
+}
+
+@keyframes pulseGold {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(254, 202, 87, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 0 5px rgba(254, 202, 87, 0);
+  }
+}
+
+.pulse-green {
+  animation: pulseGreen 2s ease-in-out infinite;
+}
+
+.pulse-red {
+  animation: pulseRed 2s ease-in-out infinite;
+}
+
+.pulse-gold {
+  animation: pulseGold 2s ease-in-out infinite;
+}
+
+/* ============================
+   Gradient Text
+   ============================ */
+.gradient-text-gold {
+  background: linear-gradient(135deg, #FECA57, #FF9F43, #FECA57);
+  background-size: 200% 200%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: gradientShift 3s ease-in-out infinite;
+}
+
+.gradient-text-blue {
+  background: linear-gradient(135deg, #3742FA, #5B86E5, #3742FA);
+  background-size: 200% 200%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: gradientShift 3s ease-in-out infinite;
+}
+
+@keyframes gradientShift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+/* ============================
+   Glow Effects
+   ============================ */
+.glow-blue {
+  box-shadow: 0 0 20px rgba(55, 66, 250, 0.15);
+}
+
+.glow-green {
+  box-shadow: 0 0 20px rgba(0, 210, 106, 0.15);
+}
+
+.glow-gold {
+  box-shadow: 0 0 20px rgba(254, 202, 87, 0.15);
+}
+
+/* ============================
+   Glass Tooltip (for recharts)
+   ============================ */
+.glass-tooltip {
+  background: rgba(14, 18, 37, 0.92) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4) !important;
+  padding: 8px 12px !important;
+}
+
+/* ============================
+   Temperature Gauge Gradient
+   ============================ */
+.temp-gauge {
+  background: linear-gradient(90deg, #00D26A, #FECA57, #FF4757);
+  border-radius: 999px;
+}
+
+/* ============================
+   Toggle Switch
+   ============================ */
+.toggle-track {
+  transition: background-color 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+              box-shadow 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.toggle-track-active {
+  box-shadow: 0 0 12px rgba(55, 66, 250, 0.3);
+}
+
+/* ============================
+   Pull-to-refresh Indicator
+   ============================ */
+@keyframes bounceIn {
+  0% { transform: translateY(-20px) scale(0.8); opacity: 0; }
+  50% { transform: translateY(4px) scale(1.02); }
+  100% { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+.bounce-in {
+  animation: bounceIn 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ============================
+   Refreshing overlay (smooth data transition)
+   ============================ */
+.refreshing-overlay {
+  position: relative;
+}
+
+.refreshing-overlay::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(8, 11, 26, 0.3);
+  border-radius: 20px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.refreshing-overlay.is-refreshing::after {
+  opacity: 1;
+}
+
+/* ============================
+   Sparkline container
+   ============================ */
+.sparkline-container {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 1px;
+  height: 20px;
+}
+
+.sparkline-bar {
+  width: 3px;
+  border-radius: 1px;
+  transition: height 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+  background: linear-gradient(to top, rgba(254, 202, 87, 0.3), rgba(254, 202, 87, 0.8));
+}
+
+/* ============================
+   Smooth section transitions
+   ============================ */
+.section-enter {
+  animation: fadeSlideUp 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* ============================
+   Tab Indicator Pill
+   ============================ */
+.tab-pill {
+  transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.tab-pill-active {
+  background: linear-gradient(135deg, rgba(55, 66, 250, 0.15), rgba(55, 66, 250, 0.08));
+  box-shadow: 0 0 16px rgba(55, 66, 250, 0.12);
+}
+
+/* ============================
+   Input / Select Styling
+   ============================ */
+input[type="text"],
+input[type="number"],
+select {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  color: var(--color-cocoon-text);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+input[type="text"]:focus,
+input[type="number"]:focus,
+select:focus {
+  border-color: rgba(55, 66, 250, 0.4);
+  box-shadow: 0 0 0 3px rgba(55, 66, 250, 0.1);
+  outline: none;
+}
+
+select option {
+  background: #111633;
+  color: var(--color-cocoon-text);
+}
+
+/* ============================
+   Button press effect
+   ============================ */
+.btn-press {
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.btn-press:active {
+  transform: scale(0.97);
 }

@@ -43,6 +43,7 @@ interface NodeStore {
 
   // Loading
   isLoading: boolean
+  isRefreshing: boolean
 
   // Data
   loadData: () => void
@@ -78,13 +79,14 @@ export const useNodeStore = create<NodeStore>((set, get) => ({
   networkStats: { totalNodes: 0, totalTasksToday: 0, totalTasksAllTime: 0, avgRewardPerTask: 0, networkComputeTflops: 0, yourRank: 0, totalOperators: 0 },
 
   settings: defaultSettings,
-  updateSettings: (partial) => set((s) => ({ settings: { ...s.settings, ...partial } })),
+  updateSettings: (partial) => set((s) => ({ settings: { ...s.settings, ...partial, alerts: { ...s.settings.alerts, ...(partial.alerts ?? {}) } } })),
 
   walletAddress: null,
   walletBalance: 0,
   setWallet: (address, balance) => set({ walletAddress: address, walletBalance: balance }),
 
   isLoading: true,
+  isRefreshing: false,
 
   loadData: () => {
     const nodes = generateMockNodes()
@@ -133,9 +135,10 @@ export const useNodeStore = create<NodeStore>((set, get) => ({
   },
 
   refreshData: async () => {
-    set({ isLoading: true })
+    set({ isRefreshing: true })
     // Simulate network delay
     await new Promise((r) => setTimeout(r, 800))
     get().loadData()
+    set({ isRefreshing: false })
   },
 }))

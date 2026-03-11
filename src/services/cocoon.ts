@@ -1,11 +1,11 @@
 /**
  * Cocoon Network API client
  *
- * NOTE: Cocoon's developer APIs may still be maturing as of early 2026.
- * This client is built against expected schema and falls back to mock data.
+ * All requests are proxied through the backend server to avoid
+ * exposing API keys in the client bundle.
  */
 
-const COCOON_API = import.meta.env.VITE_COCOON_API_URL ?? 'https://api.cocoon.network'
+const API_BASE = import.meta.env.VITE_API_URL ?? '/api'
 
 interface CocoonNodeStatus {
   node_id: string
@@ -28,11 +28,10 @@ interface CocoonTaskRecord {
   completed_at: string
 }
 
-async function cocoonFetch<T>(path: string): Promise<T | null> {
+async function apiFetch<T>(path: string): Promise<T | null> {
   try {
-    const res = await fetch(`${COCOON_API}${path}`, {
+    const res = await fetch(`${API_BASE}${path}`, {
       headers: {
-        'Authorization': `Bearer ${import.meta.env.VITE_COCOON_API_KEY ?? ''}`,
         'Content-Type': 'application/json',
       },
       signal: AbortSignal.timeout(8000),
@@ -46,19 +45,19 @@ async function cocoonFetch<T>(path: string): Promise<T | null> {
 }
 
 export async function fetchNodeStatus(nodeId: string): Promise<CocoonNodeStatus | null> {
-  return cocoonFetch<CocoonNodeStatus>(`/v1/nodes/${nodeId}/status`)
+  return apiFetch<CocoonNodeStatus>(`/nodes/${nodeId}/status`)
 }
 
 export async function fetchNodeTasks(nodeId: string, limit = 50): Promise<CocoonTaskRecord[] | null> {
-  return cocoonFetch<CocoonTaskRecord[]>(`/v1/nodes/${nodeId}/tasks?limit=${limit}`)
+  return apiFetch<CocoonTaskRecord[]>(`/nodes/${nodeId}/tasks?limit=${limit}`)
 }
 
 export async function fetchNetworkOverview() {
-  return cocoonFetch<{
+  return apiFetch<{
     total_nodes: number
     total_tasks_24h: number
     total_tasks_all_time: number
     avg_reward_nanoton: number
     network_tflops: number
-  }>('/v1/network/overview')
+  }>('/network/overview')
 }

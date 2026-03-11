@@ -1,15 +1,15 @@
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import { Zap, Globe, FileText, Brain, MoreHorizontal } from 'lucide-react'
 import { useEarnings } from '@/hooks/useEarnings'
 import { formatTon } from '@/utils/formatTon'
 import { formatTaskTime, formatComputeTime } from '@/utils/timeUtils'
 import type { TaskType } from '@/types'
 
-const TASK_TYPE_CONFIG: Record<TaskType, { icon: typeof Zap; color: string; label: string }> = {
-  inference: { icon: Brain, color: 'text-purple-400', label: 'Inference' },
-  translation: { icon: Globe, color: 'text-cocoon-blue', label: 'Translation' },
-  summarization: { icon: FileText, color: 'text-cocoon-green', label: 'Summary' },
-  other: { icon: MoreHorizontal, color: 'text-cocoon-muted', label: 'Other' },
+const TASK_TYPE_CONFIG: Record<TaskType, { icon: typeof Zap; color: string; bg: string; label: string }> = {
+  inference: { icon: Brain, color: 'text-purple-400', bg: 'rgba(168, 85, 247, 0.08)', label: 'Inference' },
+  translation: { icon: Globe, color: 'text-cocoon-blue', bg: 'rgba(55, 66, 250, 0.08)', label: 'Translation' },
+  summarization: { icon: FileText, color: 'text-cocoon-green', bg: 'rgba(0, 210, 106, 0.08)', label: 'Summary' },
+  other: { icon: MoreHorizontal, color: 'text-cocoon-muted', bg: 'rgba(255, 255, 255, 0.04)', label: 'Other' },
 }
 
 const FILTERS: Array<{ id: TaskType | 'all'; label: string }> = [
@@ -27,10 +27,10 @@ export function TaskBreakdown() {
     <motion.div
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.2 }}
+      transition={{ delay: 0.2, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
       className="glass-card p-4"
     >
-      <h3 className="text-sm font-semibold text-cocoon-text mb-3">Task Breakdown</h3>
+      <h3 className="text-sm font-semibold text-cocoon-text mb-3 tracking-tight">Task Breakdown</h3>
 
       {/* Stats row */}
       <div className="grid grid-cols-3 gap-2 mb-4">
@@ -45,11 +45,18 @@ export function TaskBreakdown() {
           <button
             key={id}
             onClick={() => setFilterTaskType(id)}
-            className={`shrink-0 px-2.5 py-1 rounded-full text-[11px] font-medium transition-all ${
+            className={`relative shrink-0 px-3 py-1.5 rounded-full text-[11px] font-semibold transition-all duration-200 ${
               filterTaskType === id
-                ? 'bg-cocoon-blue text-white'
-                : 'bg-white/5 text-cocoon-muted'
+                ? 'text-white'
+                : 'text-cocoon-muted hover:text-cocoon-text'
             }`}
+            style={{
+              background: filterTaskType === id
+                ? 'linear-gradient(135deg, rgba(55, 66, 250, 0.5), rgba(55, 66, 250, 0.3))'
+                : 'rgba(255, 255, 255, 0.04)',
+              border: `1px solid ${filterTaskType === id ? 'rgba(55, 66, 250, 0.3)' : 'rgba(255, 255, 255, 0.04)'}`,
+              boxShadow: filterTaskType === id ? '0 2px 8px rgba(55, 66, 250, 0.2)' : 'none',
+            }}
           >
             {label}
           </button>
@@ -57,34 +64,40 @@ export function TaskBreakdown() {
       </div>
 
       {/* Task list */}
-      <div className="space-y-2 max-h-72 overflow-y-auto">
-        {filteredTasks.slice(0, 20).map((task, i) => {
-          const cfg = TASK_TYPE_CONFIG[task.taskType]
-          const Icon = cfg.icon
-          return (
-            <motion.div
-              key={task.taskId}
-              initial={{ opacity: 0, x: -10 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: i * 0.03 }}
-              className="flex items-center gap-3 py-2 px-2 rounded-lg hover:bg-white/[0.03] transition-colors"
-            >
-              <div className={`p-1.5 rounded-lg bg-white/5 ${cfg.color}`}>
-                <Icon size={14} />
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2">
-                  <span className="text-xs font-medium text-cocoon-text">{cfg.label}</span>
-                  <span className="text-[10px] text-cocoon-muted font-mono">{formatComputeTime(task.computeTimeMs)}</span>
+      <div className="space-y-1 max-h-72 overflow-y-auto">
+        <AnimatePresence mode="popLayout">
+          {filteredTasks.slice(0, 20).map((task, i) => {
+            const cfg = TASK_TYPE_CONFIG[task.taskType]
+            const Icon = cfg.icon
+            return (
+              <motion.div
+                key={task.taskId}
+                initial={{ opacity: 0, x: -8 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 8 }}
+                transition={{ delay: i * 0.02, duration: 0.3 }}
+                className="flex items-center gap-3 py-2.5 px-2.5 rounded-xl hover:bg-white/[0.03] transition-colors duration-200"
+              >
+                <div
+                  className={`p-1.5 rounded-lg ${cfg.color}`}
+                  style={{ background: cfg.bg, border: '1px solid rgba(255,255,255,0.04)' }}
+                >
+                  <Icon size={14} />
                 </div>
-                <div className="text-[10px] text-cocoon-muted">{formatTaskTime(task.completedAt)}</div>
-              </div>
-              <div className="text-xs font-bold font-mono text-cocoon-gold">
-                +{formatTon(task.tonReward, 4)}
-              </div>
-            </motion.div>
-          )
-        })}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-semibold text-cocoon-text">{cfg.label}</span>
+                    <span className="text-[10px] text-cocoon-muted font-mono">{formatComputeTime(task.computeTimeMs)}</span>
+                  </div>
+                  <div className="text-[10px] text-cocoon-muted">{formatTaskTime(task.completedAt)}</div>
+                </div>
+                <div className="text-xs font-bold font-mono gradient-text-gold">
+                  +{formatTon(task.tonReward, 4)}
+                </div>
+              </motion.div>
+            )
+          })}
+        </AnimatePresence>
       </div>
     </motion.div>
   )
@@ -92,8 +105,14 @@ export function TaskBreakdown() {
 
 function StatChip({ label, value }: { label: string; value: string }) {
   return (
-    <div className="bg-white/[0.03] rounded-lg p-2 text-center">
-      <div className="text-[10px] text-cocoon-muted">{label}</div>
+    <div
+      className="rounded-xl p-2.5 text-center"
+      style={{
+        background: 'rgba(255, 255, 255, 0.03)',
+        border: '1px solid rgba(255, 255, 255, 0.04)',
+      }}
+    >
+      <div className="text-[10px] text-cocoon-muted font-medium">{label}</div>
       <div className="text-xs font-bold font-mono text-cocoon-text mt-0.5">{value}</div>
     </div>
   )

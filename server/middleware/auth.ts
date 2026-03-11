@@ -38,7 +38,9 @@ export function validateTelegramAuth(req: Request, res: Response, next: NextFunc
     const secretKey = crypto.createHmac('sha256', 'WebAppData').update(BOT_TOKEN).digest()
     const computedHash = crypto.createHmac('sha256', secretKey).update(dataCheckString).digest('hex')
 
-    if (computedHash !== hash) {
+    const computedBuf = Buffer.from(computedHash, 'hex')
+    const hashBuf = Buffer.from(hash, 'hex')
+    if (computedBuf.length !== hashBuf.length || !crypto.timingSafeEqual(computedBuf, hashBuf)) {
       res.status(401).json({ error: 'Invalid init data hash' })
       return
     }

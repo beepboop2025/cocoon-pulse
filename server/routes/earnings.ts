@@ -91,9 +91,10 @@ earningsRouter.get('/export', async (req: Request, res: Response) => {
 
   try {
     const rows = await exportEarnings(wallet)
-    const header = 'task_id,node_id,task_type,ton_reward,compute_time_ms,completed_at\n'
+    const escCsv = (val: unknown) => `"${String(val ?? '').replace(/"/g, '""')}"`
+    const header = '"task_id","node_id","task_type","ton_reward","compute_time_ms","completed_at"\n'
     const csv = header + rows.map((r) =>
-      `${r.task_id},${r.node_id},${r.task_type},${r.ton_reward},${r.compute_time_ms},${r.completed_at}`
+      [r.task_id, r.node_id, r.task_type, r.ton_reward, r.compute_time_ms, r.completed_at].map(escCsv).join(',')
     ).join('\n')
 
     res.setHeader('Content-Type', 'text/csv')

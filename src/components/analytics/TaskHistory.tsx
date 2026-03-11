@@ -50,26 +50,27 @@ export function TaskHistory() {
     <motion.div
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
       className="glass-card p-4"
     >
-      <h3 className="text-sm font-semibold text-cocoon-text mb-3">Task History</h3>
+      <h3 className="text-sm font-semibold text-cocoon-text mb-3 tracking-tight">Task History</h3>
 
       {/* Search + filter */}
       <div className="flex gap-2 mb-3">
         <div className="flex-1 relative">
-          <Search size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-cocoon-muted" />
+          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-cocoon-muted" />
           <input
             type="text"
             placeholder="Search tasks..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full bg-white/5 border border-white/10 rounded-lg pl-8 pr-3 py-2 text-xs text-cocoon-text placeholder:text-cocoon-muted focus:outline-none focus:border-cocoon-blue/50"
+            className="w-full pl-9 pr-3 py-2.5 text-xs text-cocoon-text placeholder:text-cocoon-muted rounded-xl"
           />
         </div>
         <select
           value={typeFilter}
           onChange={(e) => setTypeFilter(e.target.value as TaskType | 'all')}
-          className="bg-white/5 border border-white/10 rounded-lg px-2 py-2 text-xs text-cocoon-text focus:outline-none focus:border-cocoon-blue/50"
+          className="px-3 py-2.5 text-xs rounded-xl"
         >
           <option value="all">All Types</option>
           <option value="inference">Inference</option>
@@ -80,7 +81,10 @@ export function TaskHistory() {
       </div>
 
       {/* Sort header */}
-      <div className="grid grid-cols-[1fr_80px_70px_80px] gap-1 px-2 py-1.5 text-[10px] text-cocoon-muted font-medium border-b border-white/5">
+      <div
+        className="grid grid-cols-[1fr_80px_70px_80px] gap-1 px-2 py-2 text-[10px] text-cocoon-muted font-semibold border-b border-white/[0.04] rounded-t-lg"
+        style={{ background: 'rgba(255,255,255,0.02)' }}
+      >
         <SortHeader label="Task" field="completedAt" current={sortBy} asc={sortAsc} onToggle={toggleSort} />
         <SortHeader label="Type" field="taskType" current={sortBy} asc={sortAsc} onToggle={toggleSort} />
         <SortHeader label="Duration" field="computeTimeMs" current={sortBy} asc={sortAsc} onToggle={toggleSort} />
@@ -89,8 +93,8 @@ export function TaskHistory() {
 
       {/* Rows */}
       <div className="max-h-80 overflow-y-auto">
-        {filtered.map((task) => (
-          <TaskRow key={task.taskId} task={task} />
+        {filtered.map((task, i) => (
+          <TaskRow key={task.taskId} task={task} index={i} />
         ))}
         {filtered.length === 0 && (
           <div className="py-8 text-center text-cocoon-muted text-xs">No tasks found</div>
@@ -117,35 +121,50 @@ function SortHeader({
   return (
     <button
       onClick={() => onToggle(field)}
-      className="flex items-center gap-0.5 text-left hover:text-cocoon-text transition-colors"
+      className={`flex items-center gap-0.5 text-left transition-colors duration-200 ${
+        active ? 'text-cocoon-blue' : 'hover:text-cocoon-text'
+      }`}
     >
       {label}
-      {active && <ChevronDown size={10} className={`transition-transform ${asc ? 'rotate-180' : ''}`} />}
+      {active && (
+        <ChevronDown
+          size={10}
+          className={`transition-transform duration-200 ${asc ? 'rotate-180' : ''}`}
+        />
+      )}
     </button>
   )
 }
 
-function TaskRow({ task }: { task: EarningsRecord }) {
-  const typeBg: Record<string, string> = {
-    inference: 'bg-purple-500/10 text-purple-400',
-    translation: 'bg-cocoon-blue/10 text-cocoon-blue',
-    summarization: 'bg-cocoon-green/10 text-cocoon-green',
-    other: 'bg-white/5 text-cocoon-muted',
+function TaskRow({ task, index }: { task: EarningsRecord; index: number }) {
+  const typeBg: Record<string, { bg: string; text: string }> = {
+    inference: { bg: 'rgba(168, 85, 247, 0.08)', text: 'text-purple-400' },
+    translation: { bg: 'rgba(55, 66, 250, 0.08)', text: 'text-cocoon-blue' },
+    summarization: { bg: 'rgba(0, 210, 106, 0.08)', text: 'text-cocoon-green' },
+    other: { bg: 'rgba(255, 255, 255, 0.04)', text: 'text-cocoon-muted' },
   }
 
+  const cfg = typeBg[task.taskType] ?? typeBg.other!
+
   return (
-    <div className="grid grid-cols-[1fr_80px_70px_80px] gap-1 px-2 py-2 text-xs hover:bg-white/[0.02] transition-colors border-b border-white/[0.03]">
+    <div className="grid grid-cols-[1fr_80px_70px_80px] gap-1 px-2 py-2.5 text-xs hover:bg-white/[0.02] transition-colors duration-200 border-b border-white/[0.02]">
       <div>
         <div className="font-mono text-cocoon-text text-[11px] truncate">{task.taskId}</div>
         <div className="text-[10px] text-cocoon-muted">{formatTaskTime(task.completedAt)}</div>
       </div>
       <div>
-        <span className={`inline-block px-1.5 py-0.5 rounded text-[10px] font-medium ${typeBg[task.taskType] ?? ''}`}>
+        <span
+          className={`inline-block px-2 py-0.5 rounded-md text-[10px] font-semibold ${cfg.text}`}
+          style={{
+            background: cfg.bg,
+            border: '1px solid rgba(255,255,255,0.04)',
+          }}
+        >
           {task.taskType}
         </span>
       </div>
       <div className="text-cocoon-muted font-mono self-center">{formatComputeTime(task.computeTimeMs)}</div>
-      <div className="text-cocoon-gold font-mono font-semibold self-center text-right">
+      <div className="font-mono font-bold self-center text-right gradient-text-gold">
         +{formatTon(task.tonReward, 4)}
       </div>
     </div>

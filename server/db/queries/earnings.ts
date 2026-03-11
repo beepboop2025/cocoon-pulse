@@ -61,7 +61,7 @@ export async function getEarningsStats(walletAddress: string, _period: string): 
         ELSE 0 END AS percent_change`,
     [walletAddress],
   )
-  return result.rows[0]
+  return result.rows[0] ?? { today: 0, this_week: 0, this_month: 0, all_time: 0, projected_daily: 0, projected_monthly: 0, percent_change: 0 }
 }
 
 export interface TaskRecord {

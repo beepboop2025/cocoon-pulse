@@ -28,27 +28,43 @@ export function closeApp() {
   window.Telegram?.WebApp?.close()
 }
 
+let _mainButtonHandler: (() => void) | null = null
+
 export function showMainButton(text: string, onClick: () => void) {
   const btn = window.Telegram?.WebApp?.MainButton
   if (!btn) return
+  if (_mainButtonHandler) btn.offClick(_mainButtonHandler)
+  _mainButtonHandler = onClick
   btn.text = text
   btn.onClick(onClick)
   btn.show()
 }
 
 export function hideMainButton() {
-  window.Telegram?.WebApp?.MainButton?.hide()
+  const btn = window.Telegram?.WebApp?.MainButton
+  if (!btn) return
+  if (_mainButtonHandler) btn.offClick(_mainButtonHandler)
+  _mainButtonHandler = null
+  btn.hide()
 }
+
+let _backButtonHandler: (() => void) | null = null
 
 export function showBackButton(onClick: () => void) {
   const btn = window.Telegram?.WebApp?.BackButton
   if (!btn) return
+  if (_backButtonHandler) btn.offClick(_backButtonHandler)
+  _backButtonHandler = onClick
   btn.onClick(onClick)
   btn.show()
 }
 
 export function hideBackButton() {
-  window.Telegram?.WebApp?.BackButton?.hide()
+  const btn = window.Telegram?.WebApp?.BackButton
+  if (!btn) return
+  if (_backButtonHandler) btn.offClick(_backButtonHandler)
+  _backButtonHandler = null
+  btn.hide()
 }
 
 /**

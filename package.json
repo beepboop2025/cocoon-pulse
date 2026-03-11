@@ -14,7 +14,6 @@
   "dependencies": {
     "@telegram-apps/sdk-react": "^3.3.9",
     "@tonconnect/ui-react": "^2.4.1",
-    "@types/pg": "^8.16.0",
     "cors": "^2.8.6",
     "date-fns": "^4.1.0",
     "express": "^5.2.1",
@@ -31,7 +30,10 @@
   "devDependencies": {
     "@eslint/js": "^9.39.1",
     "@tailwindcss/vite": "^4.1.18",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^5.0.0",
     "@types/node": "^24.10.1",
+    "@types/pg": "^8.16.0",
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^5.1.1",

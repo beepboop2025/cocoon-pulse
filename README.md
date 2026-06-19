@@ -1,58 +1,79 @@
-# Cocoon Pulse
+<div align="center">
 
-**A Telegram Mini App for real-time GPU node monitoring and management on the Cocoon network.**
+<img src="https://capsule-render.vercel.app/api?type=waving&color=0:070a0f,60:0d3b22,100:1f8a4c&height=180&section=header&text=Cocoon%20Pulse&fontColor=3fe07a&fontSize=52&fontAlignY=38&desc=Telegram%20Mini%20App%20%E2%80%94%20real-time%20GPU%20node%20monitoring&descSize=16&descAlignY=62&descColor=c9d4df" alt="Cocoon Pulse" />
+
+<p>
+  <img src="https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react&logoColor=white&labelColor=0d1219" />
+  <img src="https://img.shields.io/badge/Telegram-Mini%20App-26A5E4?style=flat-square&logo=telegram&logoColor=white&labelColor=0d1219" />
+  <img src="https://img.shields.io/badge/TON-Connect-43c7e8?style=flat-square&labelColor=0d1219" />
+  <img src="https://img.shields.io/badge/analytics-FastAPI%20%2B%20pandas-b48cff?style=flat-square&labelColor=0d1219" />
+  <img src="https://img.shields.io/badge/License-MIT-ffb454?style=flat-square&labelColor=0d1219" />
+</p>
+
+<p><strong>Monitor and manage your GPU nodes on the Cocoon network — live metrics, earnings, and alerts, inside Telegram.</strong></p>
+
+</div>
+
+---
+
+## Table of contents
+
+- [Features](#features)
+- [Architecture](#architecture)
+- [Tech stack](#tech-stack)
+- [Getting started](#getting-started)
+- [License](#license)
 
 ---
 
 ## Features
 
-- **Real-Time Node Monitoring** -- Track GPU utilization, VRAM usage, temperature, uptime, and TEE status across all your nodes with live-updating metrics.
-- **Earnings Dashboard** -- View daily, weekly, monthly, and all-time earnings with trend sparklines and animated counters.
-- **Engagement Analytics** -- A dedicated Python analytics service computes DAU/MAU ratios, retention cohorts, and task completion rates.
-- **Node Management** -- Start, stop, and restart GPU nodes directly from the Mini App interface.
-- **Alert System** -- Receive Telegram notifications when a node goes offline, temperature thresholds are exceeded, or earnings drop unexpectedly.
-- **Glassmorphism UI** -- A polished interface with frosted-glass panels, animated number transitions, and inline sparkline charts.
-- **Telegram WebApp SDK Integration** -- Built as a native Telegram Mini App using the official SDK, with TON Connect wallet linking.
+| | Feature | Description |
+|---|---|---|
+| 📊 | **Real-time node monitoring** | GPU utilization, VRAM, temperature, uptime, and TEE status across all nodes with live-updating metrics. |
+| 💰 | **Earnings dashboard** | Daily / weekly / monthly / all-time earnings with trend sparklines and animated counters. |
+| 📈 | **Engagement analytics** | A dedicated Python service computes DAU/MAU ratios, retention cohorts, and task-completion rates. |
+| 🎛️ | **Node management** | Start, stop, and restart GPU nodes directly from the Mini App. |
+| 🔔 | **Alert system** | Telegram notifications when a node goes offline, exceeds a temperature threshold, or earnings drop unexpectedly. |
+| 🔗 | **TON Connect** | Wallet linking via the official Telegram WebApp SDK. |
 
 ---
 
-## Tech Stack
+## Architecture
 
-### Frontend
-
-- React 19 with TypeScript
-- Vite 7
-- Tailwind CSS 4
-- Zustand for state management
-- Recharts and sparklines for data visualization
-- Framer Motion for animations
-- Telegram Apps SDK (`@telegram-apps/sdk-react`)
-- TON Connect (`@tonconnect/ui-react`)
-
-### Backend
-
-- Express 5 (TypeScript, via `tsx`)
-- PostgreSQL 17 (`pg`)
-- Redis 7 (`ioredis`) for metric caching
-- Telegram bot for alerts (`alertBot.ts`)
-
-### Analytics
-
-- Python 3.12 with FastAPI
-- Pandas and NumPy for engagement metric computation
-- Runs as an independent service on port 8080
+```mermaid
+flowchart LR
+    TG["Telegram Mini App<br/>React 19 + WebApp SDK"] --> API["Express 5 API<br/>(TypeScript)"]
+    API --> DB[(PostgreSQL 17)]
+    API --> REDIS[(Redis 7<br/>metric cache)]
+    NODES["Cocoon GPU nodes"] --> API
+    API --> ANALYTICS["Analytics service<br/>FastAPI · pandas · numpy"]
+    API --> BOT["Alert bot<br/>offline / temp / earnings"]
+    BOT --> TG
+```
 
 ---
 
-## Getting Started
+## Tech stack
+
+| Layer | Technology |
+|-------|------------|
+| Frontend | React 19, TypeScript, Vite 7, Tailwind CSS 4, Zustand, Framer Motion |
+| Telegram | `@telegram-apps/sdk-react`, `@tonconnect/ui-react` |
+| Charts | Recharts + inline sparklines |
+| Backend | Express 5 (via `tsx`), PostgreSQL 17 (`pg`), Redis 7 (`ioredis`) |
+| Alerts | Telegram bot (`alertBot.ts`) |
+| Analytics | Python 3.12, FastAPI, pandas, numpy (port 8080) |
+
+---
+
+## Getting started
 
 ### Prerequisites
 
-- Node.js 20+
-- Python 3.12+ (for the analytics service)
-- PostgreSQL 17 and Redis 7 (or use Docker Compose)
+- Node.js 20+ · Python 3.12+ · PostgreSQL 17 + Redis 7 (or Docker Compose)
 
-### Installation
+### Install & run
 
 ```bash
 git clone https://github.com/beepboop2025/cocoon-pulse.git
@@ -60,37 +81,20 @@ cd cocoon-pulse
 npm install
 ```
 
-### Running the Dev Server
-
-Start the frontend, backend, and bot in separate terminals:
+Run the services (separate terminals):
 
 ```bash
-# Frontend (http://localhost:5173)
-npm run dev
+npm run dev       # frontend  → http://localhost:5173
+npm run server    # backend   → http://localhost:3001
+npm run bot       # Telegram alert bot
 
-# Backend API (http://localhost:3001)
-npm run server
-
-# Telegram alert bot
-npm run bot
-```
-
-To run the analytics service:
-
-```bash
-cd analytics
-pip install -r requirements.txt
-python main.py
+cd analytics && pip install -r requirements.txt && python main.py   # analytics → :8080
 ```
 
 ### Docker Compose
 
-To run all services together:
-
 ```bash
-cp .env.example .env
-# Edit .env with your Telegram bot token and Cocoon API key
-
+cp .env.example .env     # set Telegram bot token + Cocoon API key
 docker compose up --build
 ```
 
@@ -98,4 +102,18 @@ docker compose up --build
 
 ## License
 
-This project is licensed under the [MIT License](LICENSE).
+MIT
+
+---
+
+<div align="center">
+<sub>part of the <b>beepboop2025 intelligence stack</b> — systems that make opaque worlds legible</sub>
+<br/><br/>
+
+🛰 <a href="https://github.com/beepboop2025/social-scraper">social-scraper</a> ·
+<a href="https://github.com/beepboop2025/palimpsest-china-intel">palimpsest</a> ·
+📈 <a href="https://github.com/beepboop2025/DragonScope">DragonScope</a> ·
+<a href="https://github.com/beepboop2025/LiquiFi">LiquiFi</a> ·
+⚙ <a href="https://github.com/beepboop2025/pdf-toolkit-mcp">pdf-toolkit-mcp</a> ·
+<a href="https://github.com/beepboop2025/snapmock">snapmock</a>
+</div>

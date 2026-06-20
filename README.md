@@ -1,3 +1,8 @@
+<!-- textura-banner -->
+<div align="center">
+  <a href="https://github.com/beepboop2025/cocoon-pulse"><img src="./banner.svg" width="100%" alt="cocoon-pulse" /></a>
+</div>
+
 <div align="center">
 
 <img src="https://capsule-render.vercel.app/api?type=waving&color=0:070a0f,60:0d3b22,100:1f8a4c&height=180&section=header&text=Cocoon%20Pulse&fontColor=3fe07a&fontSize=52&fontAlignY=38&desc=Telegram%20Mini%20App%20%E2%80%94%20real-time%20GPU%20node%20monitoring&descSize=16&descAlignY=62&descColor=c9d4df" alt="Cocoon Pulse" />

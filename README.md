@@ -12,7 +12,7 @@
   <img src="https://img.shields.io/badge/Telegram-Mini%20App-26A5E4?style=flat-square&logo=telegram&logoColor=white&labelColor=0d1219" />
   <img src="https://img.shields.io/badge/TON-Connect-43c7e8?style=flat-square&labelColor=0d1219" />
   <img src="https://img.shields.io/badge/analytics-FastAPI%20%2B%20pandas-b48cff?style=flat-square&labelColor=0d1219" />
-  <img src="https://img.shields.io/badge/License-MIT-ffb454?style=flat-square&labelColor=0d1219" />
+  <img src="https://img.shields.io/badge/License-Source--Available-ffb454?style=flat-square&labelColor=0d1219" />
 </p>
 
 <p><strong>Monitor and manage your GPU nodes on the Cocoon network — live metrics, earnings, and alerts, inside Telegram.</strong></p>
@@ -107,7 +107,7 @@ docker compose up --build
 
 ## License
 
-MIT
+Source-available — free to view, study, and run locally for non-commercial use. Commercial use requires a separate license. See [LICENSE.md](LICENSE.md) for the full terms.
 
 ---
 
@@ -115,10 +115,7 @@ MIT
 <sub>part of the <b>beepboop2025 intelligence stack</b> — systems that make opaque worlds legible</sub>
 <br/><br/>
 
-🛰 <a href="https://github.com/beepboop2025/social-scraper">social-scraper</a> ·
-<a href="https://github.com/beepboop2025/palimpsest-china-intel">palimpsest</a> ·
 📈 <a href="https://github.com/beepboop2025/DragonScope">DragonScope</a> ·
-<a href="https://github.com/beepboop2025/LiquiFi">LiquiFi</a> ·
-⚙ <a href="https://github.com/beepboop2025/pdf-toolkit-mcp">pdf-toolkit-mcp</a> ·
+⚙ <a href="https://github.com/beepboop2025/pdf-suite-mcp">pdf-suite-mcp</a> ·
 <a href="https://github.com/beepboop2025/snapmock">snapmock</a>
 </div>
